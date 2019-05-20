@@ -2,7 +2,9 @@
 
 ## Todo
 - [ ] Terminer le readme
-- [ ] Terminer le code (gestion de la lumière, gestion menu)
+- [ ] Terminer le code 
+  - [ ] gestion de l'éclairage des plantes
+  - [ ] gestion des menus
 - [ ] Terminer plan de montage
 
 ## Matériel
@@ -32,8 +34,6 @@
 - 3 * Bornier à vis 3p
 
 ## Schémas électronique
-Tous les schémas sont disponible dans le dossier "**circuit**"
+Tous les schémas sont disponible dans le dossier "**electronic**"
 
 ![alt text](circuit/SCH.png)
-
-![alt text](circuit/PCB.png)
