@@ -36,4 +36,4 @@
 ## Schémas électronique
 Tous les schémas sont disponible dans le dossier "**electronic**"
 
-![alt text](circuit/SCH.png)
+![alt text](electronic/SCH.png)
