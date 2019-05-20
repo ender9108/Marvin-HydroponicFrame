@@ -30,3 +30,7 @@
 - 2 * Résistance smd 1206 4.7 kohm
 - 1 * Bornier à vis 2p
 - 3 * Bornier à vis 3p
+
+## Schémas électronique
+Tous les schémas sont disponible dans le dossier "**circuit**"
+https://github.com/ender9108/hydroponic_frame/blob/master/circuit/SCH.png
