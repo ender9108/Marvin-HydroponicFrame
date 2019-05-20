@@ -35,8 +35,9 @@
 
 ## Schémas électronique
 Tous les schémas sont disponible dans le dossier "**electronic**"
-    - Schéma électronique
-    - Schéma des pistes du PCB
-    - Fichier zip contenant les fichiers gerber pour commander le PCB
+
+- Schéma électronique
+- Schéma des pistes du PCB
+- Fichier zip contenant les fichiers gerber pour commander le PCB
 
 ![alt text](electronic/SCH.png)
