@@ -35,5 +35,3 @@
 Tous les schémas sont disponible dans le dossier "**circuit**"
 
 ![alt text](circuit/SCH.png)
-
-![alt text](circuit/PCB.png)
