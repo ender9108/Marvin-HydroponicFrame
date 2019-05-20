@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # hydroponic_frame
 
 ## Matériel
@@ -25,3 +26,6 @@
 - 2 * Résistance smd 1206 4.7 kohm
 - 1 * Bornier à vis 2p
 - 3 * Bornier à vis 3p
+=======
+# hydroponic frame
+>>>>>>> 078fb9ba60bfd5a8dbfcdf98be06db8df461ce49
