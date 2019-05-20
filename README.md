@@ -1,5 +1,10 @@
 # hydroponic_frame
 
+## Todo
+- [ ] Terminer le readme
+- [ ] Terminer le code (gestion de la lumière, gestion menu)
+- [ ] Terminer plan de montage
+
 ## Matériel
 
 ### Electronique
