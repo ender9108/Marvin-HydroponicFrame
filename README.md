@@ -6,6 +6,7 @@
   - [ ] gestion de l'éclairage des plantes
   - [ ] gestion des menus
 - [ ] Terminer plan de montage
+- [ ] Multilingue
 
 ## Matériel
 
@@ -32,6 +33,24 @@
 - 2 * Résistance smd 1206 4.7 kohm
 - 1 * Bornier à vis 2p
 - 3 * Bornier à vis 3p
+
+### Cadre hydroponique
+- 1 * plache contreplaqué ep 18mm, l500mm, L518mm
+- 2 * plache contreplaqué ep 18mm, l138mm, L500mm
+- 2 * plache contreplaqué ep 18mm, l82mm, L120mm
+- 1 * plache contreplaqué ep 18mm, l82mm, L340mm
+- 1 * plache contreplaqué ep 18mm, l82mm, L160mm
+- 1 * tube PVC d100mm, L500mm
+- 4 * pot de fleur d75, h70
+- 1 * plaque aluminium ep1mm, l38mm, L80mm
+
+### Matériel divers
+- Vis bois
+- Colle à bois
+- Buller
+- Alimentation 12V
+- Interrupteur on/off
+- Prise 
 
 ## Schémas électronique
 Tous les schémas sont disponible dans le dossier "**electronic**"

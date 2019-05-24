@@ -6,6 +6,13 @@
  * @since 20190404
  */
 
+ /**
+  * Menus
+  *   - Set light duration
+  *   - Set bubler duration
+  *   - Set bubler intervale
+  */
+
 #include <Wire.h>
 #include <RTClib.h>
 #include <Adafruit_GFX.h>
@@ -31,12 +38,21 @@ int phSensorReading;
 unsigned int photocellReading;
 unsigned int waterLevelReading;
 unsigned long startAtmTime;
-unsigned long startBublerTime;
+unsigned long startBublerTime = NULL;
+unsigned long startMenusDisplay = NULL;
 unsigned int lightDuration = 18; // hour
-unsigned int delayStartBublerIntervale = 3600000; // seconde
-unsigned int delayRunBublerIntervale = 300000; // seconde
+unsigned int delayStartBublerIntervale = 3600000; // milliseconde
+unsigned int bublerDuration = 300000; // milliseconde
+unsigned int menusDisplayDuration = 5000; // milliseconde
 bool lightIsOn = false;
 bool bublerIsOn = false;
+bool menuIsDisplay = false;
+char menus[4][26] = {
+  "Set light duration",
+  "Set light time start / end",
+  "Set bubler duration",
+  "Set bubler intervale"
+};
 
 void setup() {
   Serial.begin(9600);
@@ -77,7 +93,7 @@ void setup() {
 
   // Init RTC module (DS3231)
   if (! rtc.begin()) {
-    Serial.println("Couldn't find RTC");
+    Serial.println("Couldn't find RTC module");
     while (1);
   }
 
@@ -109,29 +125,57 @@ void loop() {
     Serial.println("Bubler start !");
   }
 
-  if(bublerIsOn == true && currentAtmTime >= (startBublerTime + delayRunBublerIntervale)) {
+  if(bublerIsOn == true && currentAtmTime > (startBublerTime + bublerDuration)) {
     digitalWrite(PIN_RELAY_BUBLER, LOW);
     bublerIsOn = false;
     startAtmTime = currentAtmTime;
     Serial.println("Bubler shutdown !");
   }
 
-  // Display informations on screen
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.println(getDateToDisplay(now));
-  display.println("Luminosite : " + getLightLevelName(photocellReading));
-  display.println("Niveau eau : " + getWaterLevelName(waterLevelReading));
-  display.println("PH : " + String(getPhLevel(phSensorReading)));
+  // Manage display menus
+  menuManager(currentAtmTime);
 
-  if(bublerIsOn == true) {
-    display.println("Buller : actif");
-  } else {
-    display.println("Buller : inactif");
+  if(menuIsDisplay == false) {
+    // Display informations on screen
+    display.clearDisplay();
+    display.setCursor(0,0);
+    display.println(getDateToDisplay(now));
+    display.println("Luminosite : " + getLightLevelName(photocellReading));
+    display.println("Niveau eau : " + getWaterLevelName(waterLevelReading));
+    display.println("PH : " + String(getPhLevel(phSensorReading)));
+  
+    if(bublerIsOn == true) {
+      display.println("Buller : actif");
+    } else {
+      display.println("Buller : inactif");
+    }
   }
   
   display.display();
   delay(100);
+}
+
+/**
+ * Display menu on screen
+ * 
+ * @return void
+ */
+void menuManager(unsigned long currentAtmTime) {
+  if(digitalRead(PIN_BTN_MENU) == HIGH) {
+    display.clearDisplay();
+    display.setCursor(0,0);
+    menuIsDisplay = true;
+    startMenusDisplay = currentAtmTime;
+
+    for(int i = 0 ; i < sizeof(menus) ; i++) {
+      display.println(menus[i]);
+    }
+  }
+
+  // After "menusDisplayDuration" seconde inactivity hidden menu
+  if(menuIsDisplay == true && currentAtmTime > (startMenusDisplay + menusDisplayDuration)) {
+    menuIsDisplay = false;
+  }
 }
 
 /**
@@ -193,7 +237,7 @@ int getPhLevel(int phSensorReading) {
   float phValue;
   float voltage;
   
-  voltage = waterLevelReading * 5.0 / 1024;
+  voltage = phSensorReading * 5.0 / 1024;
   phValue = 3.5 * voltage;
 
   return phValue;
