@@ -17,12 +17,25 @@
   *       - change duration in minute
   *   - "Set bubler intervale"
   *       - change intervale to start bubler
+  *   - "Reset config"
+  *       - restore default parameters
   */
 
 #include <Wire.h>
 #include <RTClib.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <EEPROM.h>
+
+struct Config {
+  unsigned int lightHourDuration = 18; // hour
+  unsigned int lightMinuteDuration = 0;
+  unsigned int lightStartHour = 8;
+  unsigned int lightStartMinute = 0;
+  unsigned int delayStartBublerIntervale = 3600000; // milliseconde
+  unsigned int bublerDuration = 300000; // milliseconde
+  unsigned int menuDisplayDuration = 5000; // milliseconde
+};
 
 const int PIN_RELAY_PUMP = 4;
 const int PIN_RELAY_STRIPLED = 5;
@@ -45,14 +58,7 @@ unsigned int photocellReading;
 unsigned int waterLevelReading;
 unsigned long startAtmTime;
 unsigned long startBublerTime = NULL;
-unsigned long startMenusDisplay = NULL;
-unsigned int lightHourDuration = 18; // hour
-unsigned int lightMinuteDuration = 0;
-unsigned int lightStartHour = 8;
-unsigned int lightStartMinute = 0;
-unsigned int delayStartBublerIntervale = 3600000; // milliseconde
-unsigned int bublerDuration = 300000; // milliseconde
-unsigned int menusDisplayDuration = 5000; // milliseconde
+unsigned long startMenuDisplay = NULL;
 bool lightIsOn = false;
 bool bublerIsOn = false;
 bool menuIsDisplay = false;
@@ -60,8 +66,10 @@ char menus[4][26] = {
   "Set light duration",
   "Set light time start",
   "Set bubler duration",
-  "Set bubler intervale"
+  "Set bubler intervale",
+  "Reset config"
 };
+Config myConfig;
 
 void setup() {
   Serial.begin(9600);
@@ -79,6 +87,9 @@ void setup() {
   pinMode(PIN_WATER_LEVEL_LOW, INPUT);
   pinMode(PIN_WATER_LEVEL_MIDDLE, INPUT);
   pinMode(PIN_WATER_LEVEL_HIGH, INPUT);
+
+  // Get config from EEPROM
+  myConfig = readConfigOnEeprom();
 
   // Set rgb led color (blue = start in progress)
   changeRgbColor(0, 0, 255);
@@ -127,14 +138,14 @@ void loop() {
   phSensorReading = analogRead(PIN_PH_SENSOR);
   delay(100);
 
-  if(currentAtmTime >= (startAtmTime + delayStartBublerIntervale) && false == bublerIsOn) {
+  if(currentAtmTime >= (startAtmTime + myConfig.delayStartBublerIntervale) && false == bublerIsOn) {
     digitalWrite(PIN_RELAY_BUBLER, HIGH);
     startBublerTime = currentAtmTime;
     bublerIsOn = true;
     Serial.println("Bubler start !");
   }
 
-  if(true == bublerIsOn && currentAtmTime > (startBublerTime + bublerDuration)) {
+  if(true == bublerIsOn && currentAtmTime > (startBublerTime + myConfig.bublerDuration)) {
     digitalWrite(PIN_RELAY_BUBLER, LOW);
     bublerIsOn = false;
     startAtmTime = currentAtmTime;
@@ -168,6 +179,35 @@ void loop() {
 }
 
 /**
+ * Save new config on EEPROM
+ * 
+ * @return void
+ */
+void saveConfigOnEeprom() {
+  EEPROM.put(0, myConfig);
+}
+
+/**
+ * Read config on EEPROM
+ * 
+ * @return Config
+ */
+Config readConfigOnEeprom() {
+  Config tmpConfig;
+  EEPROM.get(0, tmpConfig);
+  
+  // check if config is not empty
+  // If is empty
+  //    Assign myConfig to tmpConfig
+  //    Save on EEPROM tmpConfig 
+  //    Return tmpConfig
+  // Else 
+  //    Return tmpConfig
+
+  return tmpConfig;
+}
+
+/**
  * Display menu on screen
  * 
  * @return void
@@ -177,15 +217,15 @@ void menuManager(unsigned long currentAtmTime) {
     display.clearDisplay();
     display.setCursor(0,0);
     menuIsDisplay = true;
-    startMenusDisplay = currentAtmTime;
+    startMenuDisplay = currentAtmTime;
 
     for(int i = 0 ; i < sizeof(menus) ; i++) {
       display.println(menus[i]);
     }
   }
 
-  // After "menusDisplayDuration" seconde inactivity hidden menu
-  if(true == menuIsDisplay && currentAtmTime > (startMenusDisplay + menusDisplayDuration)) {
+  // After "menuDisplayDuration" seconde inactivity hidden menu
+  if(true == menuIsDisplay && currentAtmTime > (startMenuDisplay + myConfig.menuDisplayDuration)) {
     menuIsDisplay = false;
   }
 }
@@ -197,13 +237,13 @@ void menuManager(unsigned long currentAtmTime) {
  * @return void
  */
 void lightManager(DateTime now) {
-  DateTime lightStartDatetime(now.year(), now.month(), now.day(), lightStartHour, lightStartMinute, now.second());
+  DateTime lightStartDatetime(now.year(), now.month(), now.day(), myConfig.lightStartHour, myConfig.lightStartMinute, now.second());
   
   if(lightIsOn == false && now.unixtime() == lightStartDatetime.unixtime()) {
     digitalWrite(PIN_RELAY_STRIPLED, HIGH);
   }
 
-  DateTime lightEndDateTime(lightStartDatetime + TimeSpan(lightStartDatetime.day(), lightHourDuration, lightMinuteDuration, lightStartDatetime.second()));
+  DateTime lightEndDateTime(lightStartDatetime + TimeSpan(lightStartDatetime.day(), myConfig.lightHourDuration, myConfig.lightMinuteDuration, lightStartDatetime.second()));
 
   if(lightIsOn == true && now.unixtime() == lightEndDateTime.unixtime()) {
     digitalWrite(PIN_RELAY_STRIPLED, LOW);
