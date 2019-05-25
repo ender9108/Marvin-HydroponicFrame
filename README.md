@@ -3,7 +3,7 @@
 ## Todo
 - [ ] Terminer le readme
 - [ ] Terminer le code 
-  - [ ] gestion de l'éclairage des plantes
+  - [x] gestion de l'éclairage des plantes
   - [ ] gestion des menus
   - [ ] sauvegarde des paramètres dans l'EEPROM
 - [ ] Terminer plan de montage

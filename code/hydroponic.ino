@@ -8,9 +8,6 @@
 
  /**
   * @todo
-  * 
-  * Gestion de l'eclairage
-  * 
   * Menus
   *   - "Set light duration",
   *       - change duration in hour
@@ -49,8 +46,10 @@ unsigned int waterLevelReading;
 unsigned long startAtmTime;
 unsigned long startBublerTime = NULL;
 unsigned long startMenusDisplay = NULL;
-unsigned int lightDuration = 18; // hour
-String lightStartHour = "8:00";
+unsigned int lightHourDuration = 18; // hour
+unsigned int lightMinuteDuration = 0;
+unsigned int lightStartHour = 8;
+unsigned int lightStartMinute = 0;
 unsigned int delayStartBublerIntervale = 3600000; // milliseconde
 unsigned int bublerDuration = 300000; // milliseconde
 unsigned int menusDisplayDuration = 5000; // milliseconde
@@ -102,12 +101,12 @@ void setup() {
   delay(1000);
 
   // Init RTC module (DS3231)
-  if (! rtc.begin()) {
+  if(!rtc.begin()) {
     Serial.println("Couldn't find RTC module");
     while (1);
   }
 
-  if (rtc.lostPower()) {
+  if(rtc.lostPower()) {
     Serial.println("RTC lost power, lets set the time!");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
@@ -128,14 +127,14 @@ void loop() {
   phSensorReading = analogRead(PIN_PH_SENSOR);
   delay(100);
 
-  if(currentAtmTime >= (startAtmTime + delayStartBublerIntervale) && bublerIsOn == false) {
+  if(currentAtmTime >= (startAtmTime + delayStartBublerIntervale) && false == bublerIsOn) {
     digitalWrite(PIN_RELAY_BUBLER, HIGH);
     startBublerTime = currentAtmTime;
     bublerIsOn = true;
     Serial.println("Bubler start !");
   }
 
-  if(bublerIsOn == true && currentAtmTime > (startBublerTime + bublerDuration)) {
+  if(true == bublerIsOn && currentAtmTime > (startBublerTime + bublerDuration)) {
     digitalWrite(PIN_RELAY_BUBLER, LOW);
     bublerIsOn = false;
     startAtmTime = currentAtmTime;
@@ -145,7 +144,10 @@ void loop() {
   // Manage display menus
   menuManager(currentAtmTime);
 
-  if(menuIsDisplay == false) {
+  // Manage light
+  lightManager(now);
+
+  if(false == menuIsDisplay) {
     // Display informations on screen
     display.clearDisplay();
     display.setCursor(0,0);
@@ -154,7 +156,7 @@ void loop() {
     display.println("Niveau eau : " + getWaterLevelName(waterLevelReading));
     display.println("PH : " + String(getPhLevel(phSensorReading)));
   
-    if(bublerIsOn == true) {
+    if(true == bublerIsOn) {
       display.println("Buller : actif");
     } else {
       display.println("Buller : inactif");
@@ -183,8 +185,28 @@ void menuManager(unsigned long currentAtmTime) {
   }
 
   // After "menusDisplayDuration" seconde inactivity hidden menu
-  if(menuIsDisplay == true && currentAtmTime > (startMenusDisplay + menusDisplayDuration)) {
+  if(true == menuIsDisplay && currentAtmTime > (startMenusDisplay + menusDisplayDuration)) {
     menuIsDisplay = false;
+  }
+}
+
+/**
+ * Light manager
+ * 
+ * @param DateTime now
+ * @return void
+ */
+void lightManager(DateTime now) {
+  DateTime lightStartDatetime(now.year(), now.month(), now.day(), lightStartHour, lightStartMinute, now.second());
+  
+  if(lightIsOn == false && now.unixtime() == lightStartDatetime.unixtime()) {
+    digitalWrite(PIN_RELAY_STRIPLED, HIGH);
+  }
+
+  DateTime lightEndDateTime(lightStartDatetime + TimeSpan(lightStartDatetime.day(), lightHourDuration, lightMinuteDuration, lightStartDatetime.second()));
+
+  if(lightIsOn == true && now.unixtime() == lightEndDateTime.unixtime()) {
+    digitalWrite(PIN_RELAY_STRIPLED, LOW);
   }
 }
 
