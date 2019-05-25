@@ -7,10 +7,19 @@
  */
 
  /**
+  * @todo
+  * 
+  * Gestion de l'eclairage
+  * 
   * Menus
-  *   - Set light duration
-  *   - Set bubler duration
-  *   - Set bubler intervale
+  *   - "Set light duration",
+  *       - change duration in hour
+  *   - "Set light time start",
+  *       - change time to start light (default 8:00)
+  *   - "Set bubler duration",
+  *       - change duration in minute
+  *   - "Set bubler intervale"
+  *       - change intervale to start bubler
   */
 
 #include <Wire.h>
@@ -41,6 +50,7 @@ unsigned long startAtmTime;
 unsigned long startBublerTime = NULL;
 unsigned long startMenusDisplay = NULL;
 unsigned int lightDuration = 18; // hour
+String lightStartHour = "8:00";
 unsigned int delayStartBublerIntervale = 3600000; // milliseconde
 unsigned int bublerDuration = 300000; // milliseconde
 unsigned int menusDisplayDuration = 5000; // milliseconde
@@ -49,7 +59,7 @@ bool bublerIsOn = false;
 bool menuIsDisplay = false;
 char menus[4][26] = {
   "Set light duration",
-  "Set light time start / end",
+  "Set light time start",
   "Set bubler duration",
   "Set bubler intervale"
 };
@@ -188,13 +198,11 @@ String getLightLevelName(int photocellReading) {
   String lightLevelName;
   
   if (photocellReading < 10) {
-    lightLevelName = "noir";
+    lightLevelName = "black";
   } else if (photocellReading < 200) {
-    lightLevelName = "sombre";
+    lightLevelName = "dark";
   } else if (photocellReading < 800) {
-    lightLevelName = "lumineux";
-  } else {
-    lightLevelName = " tres lumineux";
+    lightLevelName = "luminous";
   }
 
   return lightLevelName;
@@ -212,15 +220,15 @@ String getWaterLevelName(int waterLevelReading) {
   switch(waterLevelReading) {
     case 3: // Water level high
       changeRgbColor(0, 255, 0);
-      waterLevelName = "haut";
+      waterLevelName = "high";
       break;
     case 2: // Water level middle
       changeRgbColor(255, 255, 0);
-      waterLevelName = "moyen";
+      waterLevelName = "middle";
       break;
     case 1: // Water level low
       changeRgbColor(255, 0, 0);
-      waterLevelName = "bas";
+      waterLevelName = "low";
       break;
   }
 
